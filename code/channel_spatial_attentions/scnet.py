@@ -1,6 +1,6 @@
 # Improving convolutional networks with self-calibrated convolutions (CVPR 2020)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class SCConv(nn.Module):
@@ -29,9 +29,9 @@ class SCConv(nn.Module):
     def execute(self, x):
         identity = x
 
-        out = jt.sigmoid(jt.add(identity, nn.interpolate(
+        out = torch.sigmoid(torch.add(identity, nn.interpolate(
             self.k2(x), identity.size()[2:])))  # sigmoid(identity + k2)
-        out = jt.multiply(self.k3(x), out)  # k3 * sigmoid(identity + k2)
+        out = torch.multiply(self.k3(x), out)  # k3 * sigmoid(identity + k2)
         out = self.k4(out)  # k4
 
         return out
@@ -40,7 +40,7 @@ class SCConv(nn.Module):
 def main():
     attention_block = SCConv(64, 64, stride=1,
                              padding=2, dilation=2, groups=1, pooling_r=4, norm_layer=nn.BatchNorm2d)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

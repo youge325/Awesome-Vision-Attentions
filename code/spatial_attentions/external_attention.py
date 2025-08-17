@@ -1,6 +1,6 @@
 # Beyond Self-attention: External Attention using Two Linear Layers for Visual Tasks (CVMJ2021)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class External_attention(nn.Module):
@@ -49,7 +49,7 @@ class External_attention(nn.Module):
 
 def main():
     attention_block = External_attention(64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

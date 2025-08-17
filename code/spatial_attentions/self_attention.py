@@ -1,5 +1,5 @@
-import jittor as jt
-import jittor.nn as nn
+import torch
+import torch.nn as nn
 
 
 class SelfAttention(nn.Module):
@@ -42,7 +42,7 @@ class SelfAttention(nn.Module):
 
 def main():
     attention_block = SelfAttention(64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

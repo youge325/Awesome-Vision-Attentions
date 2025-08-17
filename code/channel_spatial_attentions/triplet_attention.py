@@ -1,6 +1,6 @@
 # Rotate to attend: Convolutional triplet attention module (WACV 2021)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class BasicConv(nn.Module):
@@ -47,7 +47,7 @@ class BasicConv(nn.Module):
 
 class ZPool(nn.Module):
     def execute(self, x):
-        return jt.concat(
+        return torch.concat(
             (x.max(1).unsqueeze(1), x.mean(1).unsqueeze(1)), dim=1
         )
 
@@ -94,7 +94,7 @@ class TripletAttention(nn.Module):
 
 def main():
     attention_block = TripletAttention()
-    input = jt.ones([4, 64, 32, 32])
+    input = torch.ones([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

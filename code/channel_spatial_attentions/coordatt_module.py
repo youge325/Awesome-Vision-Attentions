@@ -1,6 +1,6 @@
 # Coordinate attention for efficient mobile network design (CVPR 2021)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class h_sigmoid(nn.Module):
@@ -43,12 +43,12 @@ class CoordAtt(nn.Module):
         x_h = self.pool_h(x)
         x_w = self.pool_w(x).permute(0, 1, 3, 2)
 
-        y = jt.concat([x_h, x_w], dim=2)
+        y = torch.concat([x_h, x_w], dim=2)
         y = self.conv1(y)
         y = self.bn1(y)
         y = self.act(y)
 
-        x_h, x_w = jt.split(y, [h, w], dim=2)
+        x_h, x_w = torch.split(y, [h, w], dim=2)
         x_w = x_w.permute(0, 1, 3, 2)
 
         a_h = self.conv_h(x_h).sigmoid()
@@ -61,7 +61,7 @@ class CoordAtt(nn.Module):
 
 def main():
     attention_block = CoordAtt(64, 64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

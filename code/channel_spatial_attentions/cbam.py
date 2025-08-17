@@ -1,5 +1,5 @@
-import jittor as jt
-import jittor.nn as nn
+import torch
+import torch.nn as nn
 
 
 class BasicConv(nn.Module):
@@ -56,9 +56,9 @@ class ChannelPool(nn.Module):
         super().__init__()
 
     def execute(self, x):
-        x_max = jt.max(x, 1).unsqueeze(1)
-        x_avg = jt.mean(x, 1).unsqueeze(1)
-        x = jt.concat([x_max, x_avg], dim=1)
+        x_max = torch.max(x, 1).unsqueeze(1)
+        x_avg = torch.mean(x, 1).unsqueeze(1)
+        x = torch.concat([x_max, x_avg], dim=1)
         return x
 
 
@@ -92,7 +92,7 @@ class CBAM(nn.Module):
 
 def main():
     attention_block = CBAM(64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

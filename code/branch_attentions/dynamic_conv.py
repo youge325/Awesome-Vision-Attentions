@@ -1,6 +1,6 @@
 # Dynamic convolution: Attention over convolution kernels (CVPR 2020)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class attention2d(nn.Module):
@@ -52,11 +52,11 @@ class Dynamic_conv2d(nn.Module):
         self.bias = bias
         self.K = K
         self.attention = attention2d(in_planes, ratio, K, temperature)
-        self.weight = jt.random((
+        self.weight = torch.randn((
             K, out_planes, in_planes//groups, kernel_size, kernel_size))
 
         if bias:
-            self.bias = jt.random((K, out_planes))
+            self.bias = torch.randn((K, out_planes))
         else:
             self.bias = None
 
@@ -77,10 +77,10 @@ class Dynamic_conv2d(nn.Module):
 #         The generation of the weight of dynamic convolution,
 #         which generates batch_size convolution parameters
 #         (each parameter is different)
-        aggregate_weight = jt.matmul(softmax_attention, weight).view(-1, self.in_planes,
+        aggregate_weight = torch.matmul(softmax_attention, weight).view(-1, self.in_planes,
                                                                      self.kernel_size, self.kernel_size)  # expects two matrices (2D tensors)
         if self.bias is not None:
-            aggregate_bias = jt.matmul(softmax_attention, self.bias).view(-1)
+            aggregate_bias = torch.matmul(softmax_attention, self.bias).view(-1)
             output = nn.conv2d(z, weight=aggregate_weight, bias=aggregate_bias, stride=self.stride, padding=self.padding,
                                dilation=self.dilation, groups=self.groups * batch_size)
         else:
@@ -94,7 +94,7 @@ class Dynamic_conv2d(nn.Module):
 
 def main():
     attention_block = Dynamic_conv2d(64, 64, 3, padding=1)
-    input = jt.ones([4, 64, 32, 32])
+    input = torch.ones([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

@@ -1,5 +1,5 @@
-import jittor as jt
-import jittor.nn as nn
+import torch
+import torch.nn as nn
 
 
 class DANetHead(nn.Module):
@@ -58,7 +58,7 @@ class PAM_Module(nn.Module):
             in_channels=in_dim, out_channels=in_dim//8, kernel_size=1)
         self.value_conv = nn.Conv(
             in_channels=in_dim, out_channels=in_dim, kernel_size=1)
-        self.gamma = jt.zeros(1)
+        self.gamma = torch.zeros(1)
 
         self.softmax = nn.Softmax(dim=-1)
 
@@ -91,7 +91,7 @@ class CAM_Module(nn.Module):
     def __init__(self, in_dim):
         super(CAM_Module, self).__init__()
         self.chanel_in = in_dim
-        self.gamma = jt.zeros(1)
+        self.gamma = torch.zeros(1)
         self.softmax = nn.Softmax(dim=-1)
 
     def execute(self, x):
@@ -106,7 +106,7 @@ class CAM_Module(nn.Module):
         proj_query = x.reshape(m_batchsize, C, -1)
         proj_key = x.reshape(m_batchsize, C, -1).transpose(0, 2, 1)
         energy = nn.bmm(proj_query, proj_key)
-        #energy_new = jt.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
+        #energy_new = torch.max(energy, -1, keepdim=True)[0].expand_as(energy)-energy
         attention = self.softmax(energy)
         proj_value = x.reshape(m_batchsize, C, -1)
 
@@ -119,7 +119,7 @@ class CAM_Module(nn.Module):
 
 def main():
     attention_block = DANetHead(64, 64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

@@ -1,6 +1,6 @@
 # Strip Pooling: Rethinking spatial pooling for scene parsing (CVPR 2020)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class StripPooling(nn.Module):
@@ -58,14 +58,14 @@ class StripPooling(nn.Module):
                               (h, w), **self._up_kwargs)
         x1 = self.conv2_5(nn.relu(x2_1 + x2_2 + x2_3))
         x2 = self.conv2_6(nn.relu(x2_5 + x2_4))
-        out = self.conv3(jt.concat([x1, x2], dim=1))
+        out = self.conv3(torch.concat([x1, x2], dim=1))
         return nn.relu(x + out)
 
 
 def main():
     attention_block = StripPooling(
         64, (20, 12), nn.BatchNorm2d, {'mode': 'bilinear', 'align_corners': True})
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

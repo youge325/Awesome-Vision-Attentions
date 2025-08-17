@@ -1,7 +1,7 @@
 # Decoupled spatial-temporal transformer for video inpainting (arXiv 2021)
 import math
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class Attention(nn.Module):
@@ -14,11 +14,11 @@ class Attention(nn.Module):
         self.dropout = nn.Dropout(p=p)
 
     def execute(self, query, key, value):
-        scores = jt.matmul(query, key.transpose(-2, -1)
+        scores = torch.matmul(query, key.transpose(-2, -1)
                            ) / math.sqrt(query.size(-1))
         p_attn = nn.softmax(scores, dim=-1)
         p_attn = self.dropout(p_attn)
-        p_val = jt.matmul(p_attn, value)
+        p_val = torch.matmul(p_attn, value)
         return p_val, p_attn
 
 
@@ -76,7 +76,7 @@ def main():
         tokensize=[4, 8], d_model=64, head=4, mode='s')
     attention_block_t = MultiHeadedAttention(
         tokensize=[4, 8], d_model=64, head=4, mode='t')
-    input = jt.rand([8, 32, 64])
+    input = torch.rand([8, 32, 64])
     output = attention_block_s(input, 2)
     output = attention_block_t(output, 2)
     print(input.size(), output.size())

@@ -1,6 +1,6 @@
 # Bam: Bottleneck attention module(BMVC 2018)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class Flatten(nn.Module):
@@ -66,7 +66,7 @@ class BAM(nn.Module):
 
 def main():
     attention_block = BAM(64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

@@ -1,5 +1,5 @@
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class GlobalContextBlock(nn.Module):
@@ -36,7 +36,7 @@ class GlobalContextBlock(nn.Module):
         # [N, 1, H * W, 1]
         context_mask = context_mask.unsqueeze(-1)
         # [N, 1, C, 1]
-        context = jt.matmul(input_x, context_mask)
+        context = torch.matmul(input_x, context_mask)
         # [N, C, 1, 1]
         context = context.view(batch, channel, 1, 1)
 
@@ -56,7 +56,7 @@ class GlobalContextBlock(nn.Module):
 
 def main():
     attention_block = GlobalContextBlock(64, 1/4)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

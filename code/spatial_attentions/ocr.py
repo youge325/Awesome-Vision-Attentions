@@ -1,6 +1,6 @@
-import jittor as jt 
-import jittor.nn as nn
-from jittor import init
+import torch
+import torch.nn as nn
+from torch import init
 
 class OCRHead(nn.Module):
     def __init__(self, in_channels, n_cls=19):
@@ -25,7 +25,7 @@ class OCRHead(nn.Module):
         attention = self.softmax(relation) #b , n_cls, h*w 
         result = nn.bmm(ocr_context, attention).reshape(batch_size, c, h, w) 
         result = self.conv_1x1(result)
-        result = jt.concat ([result, origin_feature], dim=1)
+        result = torch.concat ([result, origin_feature], dim=1)
         result = self.last_conv (result)
         return result
 

@@ -1,5 +1,5 @@
-import jittor as jt
-import jittor.nn as nn
+import torch
+import torch.nn as nn
 
 
 class MHSA(nn.Module):
@@ -39,7 +39,7 @@ class MHSA(nn.Module):
 
 def main():
     attention_block = MHSA(64)
-    input = jt.rand([4, 128, 64])
+    input = torch.rand([4, 128, 64])
     output = attention_block(input)
     print(input.size(), output.size())
 

@@ -1,6 +1,6 @@
 # A2-Nets: Double Attention Networks (NIPS 2018)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class DoubleAtten(nn.Module):
@@ -19,7 +19,7 @@ class DoubleAtten(nn.Module):
 
         feature_maps = feature_maps.view(b, 1, self.in_c, h*w)
         atten_map = atten_map.view(b, self.in_c, 1, h*w)
-        global_descriptors = jt.mean(
+        global_descriptors = torch.mean(
             (feature_maps * nn.softmax(atten_map, dim=-1)), dim=-1)
 
         v = self.convV(input)
@@ -33,9 +33,9 @@ class DoubleAtten(nn.Module):
 
 def main():
     attention_block = DoubleAtten(64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
-    jt.grad(output, input)
+    torch.autograd.grad(output, input)
     print(input.size(), output.size())
 
 

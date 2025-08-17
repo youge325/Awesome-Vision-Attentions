@@ -1,6 +1,6 @@
 # Simam: A simple, parameter-free attention module for convolutional neural networks (ICML 2021)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class simam_module(nn.Module):
@@ -28,7 +28,7 @@ class simam_module(nn.Module):
 
 def main():
     attention_block = simam_module()
-    input = jt.ones([4, 64, 32, 32])
+    input = torch.ones([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

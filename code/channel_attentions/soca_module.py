@@ -1,6 +1,6 @@
 # Second-Order Attention Network for Single Image Super-Resolution (CVPR 2019)
-import jittor as jt
-from jittor import nn, Function
+import torch
+from torch import nn, Function
 
 
 class Covpool(Function):
@@ -12,7 +12,7 @@ class Covpool(Function):
         w = x.data.shape[3]
         M = h*w
         x = x.reshape(batchSize, dim, M)
-        I_hat = (-1./M/M)*jt.ones((M, M)) + (1./M)*jt.init.eye((M, M))
+        I_hat = (-1./M/M)*torch.ones((M, M)) + (1./M)*torch.eye((M, M))
         I_hat = I_hat.view(1, M, M).repeat(batchSize, 1, 1)
         y = nn.bmm(nn.bmm(x, I_hat), x.transpose(0, 2, 1))
         self.save_vars = (input, I_hat)
@@ -38,13 +38,13 @@ class Sqrtm(Function):
         x = input
         batchSize = x.data.shape[0]
         dim = x.data.shape[1]
-        I3 = 3.0*jt.init.eye((dim, dim)).view(1,
+        I3 = 3.0*torch.eye((dim, dim)).view(1,
                                               dim, dim).repeat(batchSize, 1, 1)
         normA = (1.0/3.0)*x.matmul(I3).sum(dim=1).sum(dim=1)
-        A = x.divide(normA.view(batchSize, 1, 1).expand_as(x))
-        Y = jt.zeros((batchSize, iterN, dim, dim))
+        A = x / (normA.view(batchSize, 1, 1).expand_as(x))
+        Y = torch.zeros((batchSize, iterN, dim, dim))
         Y.requires_grad = False
-        Z = jt.init.eye((dim, dim)).view(
+        Z = torch.eye((dim, dim)).view(
             1, dim, dim).repeat(batchSize, iterN, 1, 1)
         if iterN < 2:
             ZY = 0.5*(I3 - A)
@@ -59,7 +59,7 @@ class Sqrtm(Function):
                 Z[:, i, :, :] = nn.bmm(ZY, Z[:, i-1, :, :])
             ZY = nn.bmm(
                 nn.bmm(0.5*Y[:, iterN-2, :, :], I3 - Z[:, iterN-2, :, :]), Y[:, iterN-2, :, :])
-        y = ZY*jt.sqrt(normA).view(batchSize, 1, 1).expand_as(x)
+        y = ZY*torch.sqrt(normA).view(batchSize, 1, 1).expand_as(x)
         self.save_vars = (input, A, ZY, normA, Y, Z)
         self.iterN = iterN
         return y
@@ -71,10 +71,10 @@ class Sqrtm(Function):
         batchSize = x.data.shape[0]
         dim = x.data.shape[1]
         der_postCom = grad_output * \
-            jt.sqrt(normA).view(batchSize, 1, 1).expand_as(x)
+            torch.sqrt(normA).view(batchSize, 1, 1).expand_as(x)
         der_postComAux = (
-            grad_output*ZY).sum(dim=1).sum(dim=1).divide(2*jt.sqrt(normA))
-        I3 = 3.0*jt.init.eye((dim, dim)).view(1, dim,
+            grad_output*ZY).sum(dim=1).sum(dim=1) / (2*torch.sqrt(normA))
+        I3 = 3.0*torch.eye((dim, dim)).view(1, dim,
                                               dim).repeat(batchSize, 1, 1)
         if iterN < 2:
             der_NSiter = 0.5*(der_postCom.bmm(I3 - A) - A.bmm(der_sacleTrace))
@@ -95,12 +95,12 @@ class Sqrtm(Function):
                 dldY = dldY_
                 dldZ = dldZ_
             der_NSiter = 0.5*(nn.bmm(dldY, I3 - A) - dldZ - nn.bmm(A, dldY))
-        grad_input = der_NSiter.divide(
+        grad_input = der_NSiter / (
             normA.view(batchSize, 1, 1).expand_as(x))
         grad_aux = der_NSiter.matmul(x).sum(dim=1).sum(dim=1)
         for i in range(batchSize):
             grad_input[i, :, :] += (der_postComAux[i]
-                                    - grad_aux[i] / (normA[i] * normA[i])) * jt.ones((dim,)).diag()
+                                    - grad_aux[i] / (normA[i] * normA[i])) * torch.ones((dim,)).diag()
         return grad_input, None
 
 
@@ -139,7 +139,7 @@ class SOCA(nn.Module):
         cov_mat = self.CovpoolLayer(x_sub)
         cov_mat_sqrt = self.SqrtmLayer(cov_mat, 5)
 
-        cov_mat_sum = jt.mean(cov_mat_sqrt, 1)
+        cov_mat_sum = torch.mean(cov_mat_sqrt, 1)
         cov_mat_sum = cov_mat_sum.view(b, c, 1, 1)
 
         y_cov = self.conv_du(cov_mat_sum)
@@ -149,9 +149,9 @@ class SOCA(nn.Module):
 
 def main():
     attention_block = SOCA(64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
-    jt.grad(output, input)
+    torch.autograd.grad(output, input)
     print(input.size(), output.size())
 
 

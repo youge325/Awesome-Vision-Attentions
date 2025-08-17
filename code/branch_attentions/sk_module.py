@@ -1,6 +1,5 @@
-
-import jittor as jt
-import jittor.nn as nn
+import torch
+import torch.nn as nn
 
 
 class SKModule(nn.Module):
@@ -42,28 +41,28 @@ class SKModule(nn.Module):
         batch_size = x.shape[0]
 
         feats = [conv(x) for conv in self.convs]
-        feats = jt.concat(feats, dim=1)
+        feats = torch.concat(feats, dim=1)
         feats = feats.view(batch_size, self.M, self.features,
                            feats.shape[2], feats.shape[3])
 
-        feats_U = jt.sum(feats, dim=1)
+        feats_U = torch.sum(feats, dim=1)
         feats_S = self.gap(feats_U)
         feats_Z = self.fc(feats_S)
 
         attention_vectors = [fc(feats_Z) for fc in self.fcs]
-        attention_vectors = jt.concat(attention_vectors, dim=1)
+        attention_vectors = torch.concat(attention_vectors, dim=1)
         attention_vectors = attention_vectors.view(
             batch_size, self.M, self.features, 1, 1)
         attention_vectors = self.softmax(attention_vectors)
 
-        feats_V = jt.sum(feats*attention_vectors, dim=1)
+        feats_V = torch.sum(feats*attention_vectors, dim=1)
 
         return feats_V
 
 
 def main():
     attention_block = SKModule(64)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

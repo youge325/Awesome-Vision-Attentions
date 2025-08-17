@@ -1,6 +1,6 @@
 # Context encoding for semantic segmentation (CVPR 2018)
-import jittor as jt
-from jittor import nn, init
+import torch
+from torch import nn, init
 
 
 class Encoding(nn.Module):
@@ -11,9 +11,9 @@ class Encoding(nn.Module):
         std = 1. / ((num_codes * channels)**0.5)
         # [num_codes, channels]
         self.codewords = init.uniform_(
-            jt.random((num_codes, channels)), -std, std)
+            torch.randn((num_codes, channels)), -std, std)
         # [num_codes]
-        self.scale = init.uniform_(jt.random((num_codes,)), -1, 0)
+        self.scale = init.uniform_(torch.randn((num_codes,)), -1, 0)
 
     @staticmethod
     def scaled_l2(x, codewords, scale):
@@ -75,7 +75,7 @@ class EncModule(nn.Module):
 
 def main():
     attention_block = EncModule(64, 32)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

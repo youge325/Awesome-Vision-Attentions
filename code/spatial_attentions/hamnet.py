@@ -1,6 +1,6 @@
 # Is Attention Better Than Matrix Decomposition? (ICLR 2021)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 from contextlib import contextmanager
 
 
@@ -21,8 +21,8 @@ class NMF(nn.Module):
         super().__init__()
         r = dim // ratio
 
-        self.D = jt.zeros((dim, r)).uniform_(0, 1)
-        self.C = jt.zeros((r, n)).uniform_(0, 1)
+        self.D = torch.zeros((dim, r)).uniform_(0, 1)
+        self.C = torch.zeros((r, n)).uniform_(0, 1)
 
         self.K = K
 
@@ -41,7 +41,7 @@ class NMF(nn.Module):
 
         for k in reversed(range(self.K)):
             # only calculate gradients on the last step, per propose 'One-step Gradient'
-            context = null_context if k == 0 else jt.no_grad
+            context = null_context if k == 0 else torch.no_grad
             with context():
                 C_new = C * ((t(D) @ x) / ((t(D) @ D @ C) + eps))
                 D_new = D * ((x @ t(C)) / ((D @ C @ t(C)) + eps))
@@ -78,7 +78,7 @@ class Hamburger(nn.Module):
 
 def main():
     attention_block = Hamburger(64, 32*32, 64, 8, 6)
-    input = jt.rand([4, 64, 32, 32])
+    input = torch.rand([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

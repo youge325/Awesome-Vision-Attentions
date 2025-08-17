@@ -1,5 +1,5 @@
-import jittor as jt
-import jittor.nn as nn
+import torch
+import torch.nn as nn
 
 
 class Highway(nn.Module):
@@ -39,7 +39,7 @@ class Highway(nn.Module):
 
 def main():
     attention_block = Highway(32)
-    input = jt.rand([4, 64, 32])
+    input = torch.rand([4, 64, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

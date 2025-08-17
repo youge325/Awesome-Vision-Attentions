@@ -1,7 +1,7 @@
 # PCT: Point Cloud Transformer (CVMJ 2021)
 
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class SA_Layer(nn.Module):
@@ -31,7 +31,7 @@ class SA_Layer(nn.Module):
 
 def main():
     attention_block = SA_Layer(64)
-    input = jt.rand([4, 64, 32])
+    input = torch.rand([4, 64, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

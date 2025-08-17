@@ -1,6 +1,6 @@
 # ResNest: Split-attention networks (arXiv 2020)
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 def make_divisible(v, divisor=8, min_value=None, round_limit=.9):
@@ -89,7 +89,7 @@ class SplitAttn(nn.Module):
 
 def main():
     attention_block = SplitAttn(64)
-    input = jt.ones([4, 64, 32, 32])
+    input = torch.ones([4, 64, 32, 32])
     output = attention_block(input)
     print(input.size(), output.size())
 

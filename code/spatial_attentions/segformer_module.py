@@ -1,6 +1,6 @@
 # SegFormer: Simple and Efficient Design for Semantic Segmentation with Transformers
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 
 
 class EfficientAttention(nn.Module):
@@ -54,7 +54,7 @@ class EfficientAttention(nn.Module):
 
 def main():
     attention_block = EfficientAttention(64)
-    input = jt.rand([4, 128, 64])
+    input = torch.rand([4, 128, 64])
     output = attention_block(input, 8, 8)
     print(input.size(), output.size())
 

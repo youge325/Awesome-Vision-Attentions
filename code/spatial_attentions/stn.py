@@ -1,5 +1,5 @@
-import jittor as jt
-from jittor import nn
+import torch
+from torch import nn
 import numpy as np
 
 
@@ -12,24 +12,24 @@ def affine_grid_generator(height, width, theta):
     num_batch = theta.shape[0]
     
     # create normalized 2D grid
-    x = jt.linspace(-1.0, 1.0, width)
-    y = jt.linspace(-1.0, 1.0, height)
-    x_t, y_t = jt.meshgrid(x, y)
+    x = torch.linspace(-1.0, 1.0, width)
+    y = torch.linspace(-1.0, 1.0, height)
+    x_t, y_t = torch.meshgrid(x, y)
 
     # flatten
     x_t_flat = x_t.reshape(-1)
     y_t_flat = y_t.reshape(-1)
     print(x_t.shape)
     # reshape to [x_t, y_t , 1] - (homogeneous form)
-    ones = jt.ones_like(x_t_flat)
-    sampling_grid = jt.stack([x_t_flat, y_t_flat, ones])
+    ones = torch.ones_like(x_t_flat)
+    sampling_grid = torch.stack([x_t_flat, y_t_flat, ones])
 
     # repeat grid num_batch times
     sampling_grid = sampling_grid.unsqueeze(0).expand(num_batch, -1, -1)
 
 
     # transform the sampling grid - batch multiply
-    batch_grids = jt.matmul(theta, sampling_grid)
+    batch_grids = torch.matmul(theta, sampling_grid)
 
     # reshape to (num_batch, H, W, 2)
     batch_grids = batch_grids.reshape(num_batch, 2, height, width)
@@ -46,15 +46,15 @@ def bilinear_sampler(img, x, y):
     y = 0.5 * (y + 1.0) * (max_y-1)
 
     # grab 4 nearest corner points for each (x_i, y_i)
-    x0 = jt.floor(x).astype('int32')
+    x0 = torch.floor(x).to(torch.int32)
     x1 = x0 + 1
-    y0 = jt.floor(y).astype('int32')
+    y0 = torch.floor(y).to(torch.int32)
     y1 = y0 + 1
 
-    x0 = jt.minimum(jt.maximum(0, x0), max_x)
-    x1 = jt.minimum(jt.maximum(0, x1), max_x)
-    y0 = jt.minimum(jt.maximum(0, y0), max_y)
-    y1 = jt.minimum(jt.maximum(0, y1), max_y)
+    x0 = torch.minimum(torch.maximum(0, x0), max_x)
+    x1 = torch.minimum(torch.maximum(0, x1), max_x)
+    y0 = torch.minimum(torch.maximum(0, y0), max_y)
+    y1 = torch.minimum(torch.maximum(0, y1), max_y)
 
     # get pixel value at corner coords
     Ia = get_pixel_value(img, x0, y0)
@@ -92,8 +92,8 @@ class STN(nn.Module):
 
 def main():
     stn = STN()
-    x = jt.randn(1, 3, 224, 224)
-    theta = jt.array(np.random.uniform(0,1,(1,6)))
+    x = torch.randn(1, 3, 224, 224)
+    theta = torch.tensor(np.random.uniform(0,1,(1,6)))
     y = stn(x, theta)
     print(y)
 
